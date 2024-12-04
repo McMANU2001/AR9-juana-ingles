@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Juana Azurduy de Padilla</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: red;
+            color: yellow;
+            border: 3px solid #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 999;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            min-width: 200px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            outline: none;
+        }
+        
+        #fullscreen-btn:hover {
+            background: red;
+            color: yellow;
+            transform: scale(1.05);
+        }
+
+        #fullscreen-btn:focus {
+            outline: 3px solid #4CAF50;
+            outline-offset: 2px;
+        }
+
+        :fullscreen #fullscreen-btn {
+            display: block !important;
+            background: #000000;
+            opacity: 0.9;
+        }
+
+        :-webkit-full-screen #fullscreen-btn {
+            display: block !important;
+            background: red;
+            opacity: 0.9;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+
+        #loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: red;
+            color: yellow;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-indicator" role="alert" aria-live="polite">
+        Cargando experiencia de realidad aumentada...
+    </div>
+
+    <a-scene 
+        embedded 
+        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        vr-mode-ui="enabled: false"
+        renderer="antialias: true; colorManagement: true; sortObjects: true;"
+        device-orientation-permission-ui="enabled: false"
+        id="ar-scene"
+        aria-label="Escena de realidad aumentada">
+        
+        <a-assets>
+            <audio id="sound" src="juana.mp3" preload="auto"></audio>
+        </a-assets>
+
+        <a-marker type="pattern" url="pattern-juana.patt">
+            <a-entity 
+                id="model"
+                gltf-model="url(juanaV4.glb)" 
+                scale="2.8 2.8 2.8"  
+                position="0 0 0"
+                rotation="-100 0 0"
+                animation-mixer
+                shadow="receive: true; cast: true"
+                look-controls="enabled: false">
+            </a-entity>
+
+            <a-image 
+                id="image1"
+                src="juanaFoto.jpg"
+                position="-2.3 0 0" 
+                rotation="-100 0 0"
+                width="2.5"
+                height="2.6"
+                look-controls="enabled: false"
+                alt="Fotografía histórica de Juana Azurduy">
+            </a-image>
+
+            <a-image 
+                id="image2" 
+                src="textoJuana.png"
+                position="2.3 0 0" 
+                rotation="-100 0 0"
+                width="2.5"
+                height="2.6"
+                look-controls="enabled: false"
+                alt="Texto informativo sobre Juana Azurduy">
+            </a-image>
+
+            <a-entity sound="src: #sound; positional: false; maxDistance: 0; rolloffFactor: 0;"></a-entity>
+        </a-marker>
+
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <button 
+        id="fullscreen-btn" 
+        aria-label="Alternar pantalla completa"
+        title="Presiona para cambiar a modo pantalla completa">
+        Pantalla Completa
+        <span class="sr-only">Presiona Enter para activar</span>
+    </button>
+
+    <script>
+        const marker = document.querySelector('a-marker');
+        const model = document.getElementById('model');
+        const image1 = document.getElementById('image1');
+        const image2 = document.getElementById('image2');
+        const sound = document.querySelector('[sound]');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        
+        document.querySelector('a-scene').addEventListener('loaded', function () {
+            loadingIndicator.style.display = 'none';
+        });
+
+        marker.addEventListener('markerFound', () => {
+            console.log('Marcador encontrado');
+            model.setAttribute('animation-mixer', 'timeScale: 1');
+            sound.components.sound.playSound();
+            announceMarkerStatus('Marcador encontrado, iniciando experiencia de realidad aumentada');
+        });
+
+        marker.addEventListener('markerLost', () => {
+            console.log('Marcador perdido');
+            model.setAttribute('animation-mixer', 'timeScale: 0');
+            sound.components.sound.pauseSound();
+            announceMarkerStatus('Marcador perdido, experiencia en pausa');
+        });
+
+        function announceMarkerStatus(message) {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.className = 'sr-only';
+            announcement.textContent = message;
+            document.body.appendChild(announcement);
+            setTimeout(() => announcement.remove(), 1000);
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement &&
+                !document.mozFullScreenElement &&
+                !document.webkitFullscreenElement &&
+                !document.msFullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+
+        fullscreenBtn.addEventListener('click', toggleFullScreen);
+        fullscreenBtn.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                toggleFullScreen();
+            }
+        });
+
+        document.addEventListener('fullscreenchange', updateFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+        document.addEventListener('mozfullscreenchange', updateFullscreenButton);
+        document.addEventListener('MSFullscreenChange', updateFullscreenButton);
+
+        function updateFullscreenButton() {
+            const isFullscreen = document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement;
+            
+            fullscreenBtn.textContent = isFullscreen ? 'Salir de Pantalla Completa' : 'Pantalla Completa';
+            fullscreenBtn.setAttribute('aria-label', 
+                isFullscreen ? 'Salir del modo pantalla completa' : 'Cambiar a modo pantalla completa');
+        }
+    </script>
+</body>
+</html>
