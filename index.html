@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Juana Azurduy de Padilla</title>
@@ -81,7 +81,7 @@
 </head>
 <body>
     <div id="loading-indicator" role="alert" aria-live="polite">
-        Cargando experiencia de realidad aumentada...
+        Loading augmented reality experience...
     </div>
 
     <a-scene 
@@ -91,10 +91,10 @@
         renderer="antialias: true; colorManagement: true; sortObjects: true;"
         device-orientation-permission-ui="enabled: false"
         id="ar-scene"
-        aria-label="Escena de realidad aumentada">
+        aria-label="Augmented reality scene">
         
         <a-assets>
-            <audio id="sound" src="juana.mp3" preload="auto"></audio>
+            <audio id="sound" src="juanaIngles.mp3" preload="auto"></audio>
         </a-assets>
 
         <a-marker type="pattern" url="pattern-juana.patt">
@@ -117,18 +117,18 @@
                 width="2.5"
                 height="2.6"
                 look-controls="enabled: false"
-                alt="Fotografía histórica de Juana Azurduy">
+                alt="Historical photograph of Juana Azurduy">
             </a-image>
 
             <a-image 
                 id="image2" 
-                src="textoJuana.png"
+                src="textoJuanaIngles.png"
                 position="2.3 0 0" 
                 rotation="-100 0 0"
                 width="2.5"
                 height="2.6"
                 look-controls="enabled: false"
-                alt="Texto informativo sobre Juana Azurduy">
+                alt="Informative text about Juana Azurduy">
             </a-image>
 
             <a-entity sound="src: #sound; positional: false; maxDistance: 0; rolloffFactor: 0;"></a-entity>
@@ -139,10 +139,10 @@
 
     <button 
         id="fullscreen-btn" 
-        aria-label="Alternar pantalla completa"
-        title="Presiona para cambiar a modo pantalla completa">
-        Pantalla Completa
-        <span class="sr-only">Presiona Enter para activar</span>
+        aria-label="Toggle fullscreen"
+        title="Press to switch to fullscreen mode">
+        Fullscreen
+        <span class="sr-only">Press Enter to activate</span>
     </button>
 
     <script>
@@ -159,17 +159,17 @@
         });
 
         marker.addEventListener('markerFound', () => {
-            console.log('Marcador encontrado');
+            console.log('Marker found');
             model.setAttribute('animation-mixer', 'timeScale: 1');
             sound.components.sound.playSound();
-            announceMarkerStatus('Marcador encontrado, iniciando experiencia de realidad aumentada');
+            announceMarkerStatus('Marker found, starting augmented reality experience');
         });
 
         marker.addEventListener('markerLost', () => {
-            console.log('Marcador perdido');
+            console.log('Marker lost');
             model.setAttribute('animation-mixer', 'timeScale: 0');
             sound.components.sound.pauseSound();
-            announceMarkerStatus('Marcador perdido, experiencia en pausa');
+            announceMarkerStatus('Marker lost, experience paused');
         });
 
         function announceMarkerStatus(message) {
@@ -226,9 +226,9 @@
                 document.mozFullScreenElement ||
                 document.msFullscreenElement;
             
-            fullscreenBtn.textContent = isFullscreen ? 'Salir de Pantalla Completa' : 'Pantalla Completa';
+            fullscreenBtn.textContent = isFullscreen ? 'Exit Fullscreen' : 'Fullscreen';
             fullscreenBtn.setAttribute('aria-label', 
-                isFullscreen ? 'Salir del modo pantalla completa' : 'Cambiar a modo pantalla completa');
+                isFullscreen ? 'Exit fullscreen mode' : 'Switch to fullscreen mode');
         }
     </script>
 </body>
